@@ -10,7 +10,7 @@ Antes de usar este script, você precisa instalar os seguintes softwares:
 - **Apktool:** Para descompilar e recompilar APKs. Faça o download e leia as instruções de instalação em [iBotPeaches/Apktool](https://github.com/iBotPeaches/Apktool).
 - **Android Build Tools:** Contém o `apksigner` para assinar o APK. Instale através do Android SDK Manager ou encontre as instruções em [Android Developers](https://developer.android.com/studio/releases/build-tools).
 
-Adicionar ferramentas como `apktool` e `apksigner` às variáveis de ambiente do seu sistema operacional permite que você as execute de qualquer lugar no terminal ou prompt de comando. Vou detalhar como fazer isso para Windows, Linux e macOS:
+Adicione ferramentas  `apktool` e `apksigner` às variáveis de ambiente do seu sistema operacional para que você as execute de qualquer lugar no terminal ou prompt de comando. 
 
 ### Windows
 
