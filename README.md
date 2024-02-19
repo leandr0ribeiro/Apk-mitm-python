@@ -14,7 +14,7 @@ Antes de usar este script, você precisa instalar os seguintes softwares:
 
 1. **Clone o repositório:**
    ```bash
-   git clone <URL do repositório>
+   git clone https://github.com/leribeir0/apk-mitm-python.git
    ```
 
 Certifique-se de que todos os pré-requisitos estejam instalados e configurados corretamente.
