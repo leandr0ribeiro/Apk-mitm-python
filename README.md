@@ -25,9 +25,11 @@ Gerar um novo keystore (se necessário):
 ```bash
 keytool -genkey -v -keystore meu-keystore.keystore -alias meu_alias -keyalg RSA -keysize 2048 -validity 10000
 
+
 ## Extrair o certificado do keystore:
 ```bash
 keytool -export -keystore meu-keystore.keystore -alias meu_alias -file cert.pem
+
 
 Certifique-se de substituir meu-keystore.keystore, meu_alias, e cert.pem pelos nomes desejados.
 
@@ -38,6 +40,7 @@ Modifique as variáveis apk_name, certificate_path, keystore, e keystore_pass no
 ## Execute o script:
 ```bash
 python nome_do_script.py
+
 
 ## Importante
 Este script é destinado apenas para fins educacionais e de testes de segurança com permissão.
