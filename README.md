@@ -54,8 +54,6 @@ Adicione ferramentas  `apktool` e `apksigner` às variáveis de ambiente do seu 
 
 5. Para que a alteração tenha efeito, execute o comando `source ~/.bash_profile`, `source ~/.profile`, ou `source ~/.zshrc`, dependendo do arquivo que você editou.
 
-Ao seguir esses passos, você conseguirá executar as ferramentas `apktool`, `apksigner` e outras diretamente do terminal ou prompt de comando sem precisar navegar até o diretório onde elas estão localizadas ou especificar o caminho completo para sua execução. Isso simplifica o processo de trabalho com essas ferramentas.
-
 ## Configuração
 
 1. **Clone o repositório:**
