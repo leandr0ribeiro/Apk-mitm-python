@@ -1,4 +1,4 @@
-# Android APK MITM Preparation Script
+# Android APK MITM :)
 
 Este script facilita a realização de ataques Man-In-The-Middle (MITM) em aplicativos Android, permitindo a inserção de um certificado personalizado no APK desejado. Ele automatiza o processo de descompilação do APK, adição do certificado, e recompilação e assinatura do APK modificado.
 
