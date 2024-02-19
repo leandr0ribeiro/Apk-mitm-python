@@ -86,7 +86,7 @@ Modifique as variáveis apk_name, certificate_path, keystore, e keystore_pass no
 
 ## Execute o script:
 ```bash
-python nome_do_script.py
+python apk-mitm.py
 ```
 
 
