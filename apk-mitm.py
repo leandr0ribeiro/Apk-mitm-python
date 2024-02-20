@@ -23,9 +23,28 @@ def add_custom_certificate(apk_name, certificate_path):
 
     network_security_config = os.path.join(decompiled_apk_dir, 'res', 'xml', 'network_security_config.xml')
     try:
-        with open(network_security_config, "a") as file:
-            file.write(f"\n    <certificates src=\"@raw/cert\"/>\n")
-        print("Custom certificate reference added to network_security_config.xml.")
+        # Read the existing content of the file
+        with open(network_security_config, "r") as file:
+            content = file.readlines()
+
+        # Find the index of the closing tag of the base-config or network-security-config
+        end_index = -1
+        for i, line in enumerate(content):
+            if '</base-config>' in line or '</network-security-config>' in line:
+                end_index = i
+                break
+
+        if end_index != -1:
+            # Prepare the certificate tag to be inserted
+            cert_tag = '    <trust-anchors>\n        <certificates src="@raw/cert" />\n    </trust-anchors>\n'
+            # Insert the certificate tag before the closing tag
+            content.insert(end_index, cert_tag)
+
+            # Write back the modified content
+            with open(network_security_config, "w") as file:
+                file.write("".join(content))
+
+            print("Custom certificate reference added to network_security_config.xml.")
     except Exception as e:
         print(f"Error modifying network_security_config.xml: {e}")
 
@@ -93,7 +112,7 @@ def recompile_and_sign_apk(apk_name, keystore="debug.keystore", keystore_pass="a
         print(f"Keystore file '{keystore}' not found.")
         return  # Encerra a função se o keystore não existir
 
-    # Caminho completo para o apksigner altere para seu path caso tenha algum problema
+    # Caminho completo para o apksigner, não esqueça de substituir antes de executar
     apksigner_path = "apksigner"
     
     # Assinar o APK
@@ -108,8 +127,8 @@ def recompile_and_sign_apk(apk_name, keystore="debug.keystore", keystore_pass="a
 
 
 # Script execution
-apk_name = "fafa"  # Nome do seu arquivo APK sem a extensão
-certificate_path = "cert.pem"  # Atualize com o caminho correto para o certificado
+apk_name = "seu_aplicativo"  # Nome do seu arquivo APK sem a extensão
+certificate_path = "seu_certificado.pem"  # Atualize com o caminho correto para o certificado
 
 remove_decompiled_directory(apk_name)
 decompile_apk(apk_name)
