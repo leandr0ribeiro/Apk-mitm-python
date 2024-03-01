@@ -3,16 +3,18 @@ import re
 import subprocess
 import shutil
 
-def ensure_raw_directory_exists(decompiled_apk_dir):
-    raw_dir = os.path.join(decompiled_apk_dir, 'res', 'raw')
-    if not os.path.exists(raw_dir):
-        os.makedirs(raw_dir)
-    print(f"Ensured that {raw_dir} exists.")
+def ensure_directory_exists(directory_path):
+    if not os.path.exists(directory_path):
+        os.makedirs(directory_path)
+    print(f"Ensured that {directory_path} exists.")
 
 def add_custom_certificate(apk_name, certificate_path):
     decompiled_apk_dir = f"{apk_name}_decompiled"
-    ensure_raw_directory_exists(decompiled_apk_dir)
-    dest_certificate_path = os.path.join(decompiled_apk_dir, 'res', 'raw', 'cert.pem')
+    res_raw_dir = os.path.join(decompiled_apk_dir, 'res', 'raw')
+    ensure_directory_exists(res_raw_dir)
+    
+    # Use a unique name for the certificate to avoid conflicts
+    dest_certificate_path = os.path.join(res_raw_dir, 'custom_cert.pem')
     
     if not os.path.isfile(certificate_path):
         print(f"Certificate file '{certificate_path}' not found.")
@@ -22,70 +24,36 @@ def add_custom_certificate(apk_name, certificate_path):
     print(f"Certificate copied to {dest_certificate_path}.")
 
     network_security_config = os.path.join(decompiled_apk_dir, 'res', 'xml', 'network_security_config.xml')
+    if not os.path.isfile(network_security_config):
+        print("network_security_config.xml not found. Ensure your APK includes it if you need custom trust anchors.")
+        return
+    
     try:
-        # Read the existing content of the file
         with open(network_security_config, "r") as file:
             content = file.readlines()
 
-        # Find the index of the closing tag of the base-config or network-security-config
-        end_index = -1
-        for i, line in enumerate(content):
-            if '</base-config>' in line or '</network-security-config>' in line:
-                end_index = i
-                break
+        end_index = next((i for i, line in enumerate(content) if '</base-config>' in line or '</network-security-config>' in line), None)
 
-        if end_index != -1:
-            # Prepare the certificate tag to be inserted
-            cert_tag = '    <trust-anchors>\n        <certificates src="@raw/cert" />\n    </trust-anchors>\n'
-            # Insert the certificate tag before the closing tag
+        if end_index is not None:
+            cert_tag = '    <trust-anchors>\n        <certificates src="@raw/custom_cert" />\n    </trust-anchors>\n'
             content.insert(end_index, cert_tag)
 
-            # Write back the modified content
             with open(network_security_config, "w") as file:
-                file.write("".join(content))
+                file.writelines(content)
 
             print("Custom certificate reference added to network_security_config.xml.")
     except Exception as e:
         print(f"Error modifying network_security_config.xml: {e}")
 
-def remove_decompiled_directory(apk_name):
-    decompiled_dir = f"{apk_name}_decompiled"
-    if os.path.exists(decompiled_dir):  # Verifica se o diretório existe
+def remove_decompiled_directory(decompiled_apk_dir):
+    if os.path.exists(decompiled_apk_dir):
         try:
-            shutil.rmtree(decompiled_dir)
-            print(f"Removed directory: {decompiled_dir}")
+            shutil.rmtree(decompiled_apk_dir)
+            print(f"Removed directory: {decompiled_apk_dir}")
         except OSError as e:
-            print(f"Error removing directory {decompiled_dir}: {e.strerror}")
+            print(f"Error removing directory {decompiled_apk_dir}: {e.strerror}")
     else:
-        print(f"Directory does not exist, no need to remove: {decompiled_dir}")
-
-
-def remove_files_with_problematic_attributes(decompiled_apk_dir):
-    animation_dirs = [f"{decompiled_apk_dir}/res/anim-v33/"]
-    problematic_attributes = [
-        'android:fromExtendBottom',
-        'android:fromExtendLeft',
-        'android:fromExtendRight',
-        'android:fromExtendTop',
-        'android:toExtendBottom',
-        'android:toExtendLeft',
-        'android:toExtendRight',
-        'android:toExtendTop'
-    ]
-    attr_regex = '|'.join([re.escape(attr) for attr in problematic_attributes])
-    
-    for anim_dir in animation_dirs:
-        if os.path.exists(anim_dir):
-            for file in os.listdir(anim_dir):
-                if file.endswith(".xml"):
-                    file_path = os.path.join(anim_dir, file)
-                    with open(file_path, "r") as f:
-                        content = f.read()
-                        # Check if any problematic attribute is in the file
-                        if re.search(attr_regex, content):
-                            os.remove(file_path)  # Remove the file
-                            print(f"Removed {file_path} due to problematic attributes.")
-
+        print(f"Directory does not exist, no need to remove: {decompiled_apk_dir}")
 
 def decompile_apk(apk_name):
     output_dir = f"{apk_name}_decompiled"
@@ -99,23 +67,19 @@ def recompile_and_sign_apk(apk_name, keystore="debug.keystore", keystore_pass="a
     decompiled_apk_dir = f"{apk_name}_decompiled"
     output_apk = f"{apk_name}_modified.apk"
     
-    # Recompilar o APK
     try:
         subprocess.run(["apktool", "b", decompiled_apk_dir, "-o", output_apk], check=True)
         print(f"APK recompiled successfully to {output_apk}")
     except subprocess.CalledProcessError as e:
         print(f"Error recompiling APK: {e}")
-        return  # Encerra a função se a recompilação falhar
+        return
 
-    # Verifica se o keystore existe
     if not os.path.isfile(keystore):
         print(f"Keystore file '{keystore}' not found.")
-        return  # Encerra a função se o keystore não existir
+        return
 
-    # Caminho completo para o apksigner, não esqueça de substituir antes de executar
-    apksigner_path = "apksigner"
+    apksigner_path = "/path/to/your/apksigner"  # Update this path to your apksigner location
     
-    # Assinar o APK
     try:
         subprocess.run([
             apksigner_path, "sign", "--ks", keystore, "--ks-pass", f"pass:{keystore_pass}", output_apk
@@ -124,14 +88,11 @@ def recompile_and_sign_apk(apk_name, keystore="debug.keystore", keystore_pass="a
     except subprocess.CalledProcessError as e:
         print(f"Error signing APK: {e}")
 
+# Example usage
+apk_name = "YourAppName" #dont put .apk
+certificate_path = "path/to/your/cert.pem"  # Update this path to your certificate location
 
-
-# Script execution
-apk_name = "seu_aplicativo"  # Nome do seu arquivo APK sem a extensão
-certificate_path = "seu_certificado.pem"  # Atualize com o caminho correto para o certificado
-
-remove_decompiled_directory(apk_name)
+remove_decompiled_directory(f"{apk_name}_decompiled")
 decompile_apk(apk_name)
-remove_files_with_problematic_attributes(f"{apk_name}_decompiled")
 add_custom_certificate(apk_name, certificate_path)
 recompile_and_sign_apk(apk_name)
