@@ -58,7 +58,7 @@ Adicione ferramentas  `apktool` e `apksigner` às variáveis de ambiente do seu 
 
 1. **Clone o repositório:**
    ```bash
-   git clone https://github.com/mrxl33t/apk-mitm-python.git
+   git clone https://github.com/leandr0ribeiro/apk-mitm-python.git
    ```
 
 Certifique-se de que todos os pré-requisitos estejam instalados e configurados corretamente.
